@@ -1,0 +1,44 @@
+version: "3.9"
+services:
+  db:
+    image: mysql:8.0
+    container_name: utnexamen-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: UTNExamen
+    ports:
+      - "3309:3306"             # host 3309 -> container 3306
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./sql:/docker-entrypoint-initdb.d  # opcional: seed/init
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  api:
+    build: .
+    container_name: utnexamen-api
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: development
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASS: root
+      DB_NAME: UTNExamen
+      JWT_SECRET: supersecreto
+      JWT_EXPIRES_IN: 1d
+      BCRYPT_ROUNDS: "10"
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+volumes:
+  db_data:
