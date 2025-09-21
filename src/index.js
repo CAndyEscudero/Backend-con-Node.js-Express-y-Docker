@@ -13,7 +13,7 @@ app.use(express.json());
 app.use(morgan('dev'));
 
 
-app.use('/api', autenticacionRouter);
+app.use('/api/auth', autenticacionRouter);
 app.use('/api', usuariosRouter);
 app.use('/api', productosRouter);
 app.use('/api', pedidosRouter);

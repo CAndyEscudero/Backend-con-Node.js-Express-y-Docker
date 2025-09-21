@@ -1,5 +1,5 @@
-export const requerirRol = (...roles) => (req, res, next) => {
+export const requerirRol = (...rol) => (req, res, next) => {
   if (!req.user) return res.status(401).json({ error: 'No autenticado' });
-  if (!roles.includes(req.user.role)) return res.status(403).json({ error: 'Sin permisos' });
+  if (!rol.includes(req.usuario.rol)) return res.status(403).json({ error: 'Sin permisos' });
   next();
 };

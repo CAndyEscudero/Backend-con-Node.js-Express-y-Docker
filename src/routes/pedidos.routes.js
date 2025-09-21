@@ -7,7 +7,7 @@ const pedidosRouter = Router();
 
 pedidosRouter.post('/pedidos', requerirAutenticacion, requerirRol('usuario', 'admin', 'superAdmin'), async (req, res, next) => {
   try {
-    res.status(201).json(await crearPedido(req.user.id, req.body.items || []));
+    res.status(201).json(await crearPedido(req.usuario.id, req.body.items || []));
   } catch (e) {
     next(e);
   }
@@ -15,7 +15,7 @@ pedidosRouter.post('/pedidos', requerirAutenticacion, requerirRol('usuario', 'ad
 
 pedidosRouter.get('/pedidos', requerirAutenticacion, requerirRol('admin', 'superAdmin'), async (_req, res, next) => {
   try {
-    res.json(await obtenerPedidoCompleto());
+    res.json(await listarPedidosConTotales());
   } catch (e) {
     next(e);
   }
@@ -23,7 +23,7 @@ pedidosRouter.get('/pedidos', requerirAutenticacion, requerirRol('admin', 'super
 
 pedidosRouter.get('/pedidos/:id', requerirAutenticacion, async (req, res, next) => {
   try {
-    res.json(await listarPedidosConTotales(req.params.id));
+    res.json(await obtenerPedidoCompleto(req.params.id));
   } catch (e) {
     next(e);
   }
