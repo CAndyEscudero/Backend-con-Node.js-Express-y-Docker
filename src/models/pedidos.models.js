@@ -1,10 +1,11 @@
 import { pool } from '../config/db.js';
 
-export async function crearPedido(userId, items) {
+export async function crearPedido(usuarioId, items) {
   const conn = await pool.getConnection();
   try {
     await conn.beginTransaction();
-    const [r] = await conn.execute('INSERT INTO pedidos (user_id) VALUES (?)', [userId]);
+
+    const [r] = await conn.execute('INSERT INTO pedidos (usuario_id) VALUES (?)', [usuarioId]);
     const pedidoId = r.insertId;
 
     for (const { productos_id, qty, precio } of items) {
@@ -26,49 +27,35 @@ export async function crearPedido(userId, items) {
 }
 
 export async function obtenerPedidoCompleto(pedidoId) {
-  const [pedidoRows] = await pool.execute(
-    'SELECT o.id, o.user_id, o.created_at, u.name as user_name FROM orders o JOIN users u ON u.id=o.user_id WHERE o.id=?',
+  const [pedido] = await pool.execute(
+    `SELECT p.id, p.usuario_id, p.created_at, u.nombre AS usuario_nombre
+     FROM pedidos p JOIN usuario u ON u.id = p.usuario_id
+     WHERE p.id = ?`,
     [pedidoId]
   );
-    if (!pedidoRows.length) {
-    console.warn(`[${new Date().toISOString()}] Pedido ${pedidoId} no encontrado`);
-    throw new Error('Pedido no encontrado'); // si no se encuentra el producto lanza error 404
-  }
+  if (!pedido.length) throw Object.assign(new Error('Pedido no encontrado'), { status: 404 });
 
   const [items] = await pool.execute(
-    `
-    SELECT 
-      oi.product_id,
-      p.name                AS nombre_producto,
-      oi.qty                AS cantidad,
-      oi.price              AS precio_unitario,
-      (oi.qty * oi.price)   AS subtotal
-    FROM order_items oi
-    JOIN products p ON p.id = oi.product_id
-    WHERE oi.order_id = ?
-    `,
+    `SELECT i.productos_id AS producto_id, prod.nombre, i.qty AS cantidad, i.precio AS precio_unitario,
+            (i.qty * i.precio) AS subtotal
+     FROM pedidos_items i
+     JOIN productos prod ON prod.id = i.productos_id
+     WHERE i.pedidos_id = ?`,
     [pedidoId]
   );
-
   const total = items.reduce((acc, it) => acc + Number(it.subtotal), 0);
-
-  return { ...pedidoRows[0], items, total };
+  return { ...pedido[0], items, total };
 }
 
 export async function listarPedidosConTotales() {
   const [rows] = await pool.execute(`
-    SELECT 
-      o.id,
-      o.created_at,
-      u.id       AS usuario_id,
-      u.name     AS nombre_usuario,
-      SUM(oi.qty * oi.price) AS total
-    FROM orders o
-    JOIN users u ON u.id = o.user_id
-    JOIN order_items oi ON oi.order_id = o.id
-    GROUP BY o.id, o.created_at, u.id, u.name
-    ORDER BY o.id DESC
+    SELECT p.id, p.created_at, u.id AS usuario_id, u.nombre AS usuario_nombre,
+           SUM(i.qty * i.precio) AS total
+    FROM pedidos p
+    JOIN usuario u ON u.id = p.usuario_id
+    JOIN pedidos_items i ON i.pedidos_id = p.id
+    GROUP BY p.id, p.created_at, u.id, u.nombre
+    ORDER BY p.id DESC
   `);
-
   return rows;
 }

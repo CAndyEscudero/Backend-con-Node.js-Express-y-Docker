@@ -1,19 +1,19 @@
 import { Router } from 'express';
-import { requerirAuth } from '../middlewares/auth.js';
+import { requerirAutenticacion} from '../middlewares/auth.js';
 import { requerirRol } from '../middlewares/roles.js';
-import { listaUsuariosConRecuentoDePedidos, crearUsuario } from '../models/usuario.model.js';
+import { listaUsuarioConRecuentoDePedidos, crearUsuario } from '../models/usuarios.models.js';
 
 const usuariosRouter = Router();
 
-usuariosRouter.get('/usuarios', requerirAuth, requerirRol('superAdmin'), async (req, res, next) => {
+usuariosRouter.get('/usuarios', requerirAutenticacion,requerirRol('superAdmin'), async (req, res, next) => {
   try {
-    res.json(await listaUsuariosConRecuentoDePedidos());
+    res.json(await listaUsuarioConRecuentoDePedidos());
   } catch (e) {
     next(e);
   }
 });
 
-usuariosRouter.post('/usuarios', requerirAuth, requerirRol('superAdmin'), async (req, res, next) => {
+usuariosRouter.post('/usuarios', requerirAutenticacion, requerirRol('superAdmin'), async (req, res, next) => {
   try {
     res.status(201).json(await crearUsuario(req.body));
   } catch (e) {
@@ -21,7 +21,7 @@ usuariosRouter.post('/usuarios', requerirAuth, requerirRol('superAdmin'), async 
   }
 });
 
-usuariosRouter.delete('/usuarios/:id', requerirAuth, requerirRol('superAdmin'), async (req, res, next) => {
+usuariosRouter.delete('/usuarios/:id', requerirAutenticacion, requerirRol('superAdmin'), async (req, res, next) => {
   next(new Error('Pendiente de implementar'));
 });
 

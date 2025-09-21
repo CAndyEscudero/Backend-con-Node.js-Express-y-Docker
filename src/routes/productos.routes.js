@@ -1,19 +1,19 @@
 import { Router } from 'express';
-import { requerirAuth } from '../middlewares/auth.js';
+import { requerirAutenticacion } from '../middlewares/auth.js';
 import { requerirRol } from '../middlewares/roles.js';
-import { crearProducto, listarProductos, actualizarProducto, eliminarProducto } from '../models/producto.model.js';
+import { crearProducto, listarProducto,actualizarProducto, eliminarProducto } from '../models/productos.models.js';
 
 const productosRouter = Router();
 
-productosRouter.get('/productos', requerirAuth, async (_req, res, next) => {
+productosRouter.get('/productos', requerirAutenticacion, async (_req, res, next) => {
   try {
-    res.json(await listarProductos());
+    res.json(await listarProducto());
   } catch (e) {
     next(e);
   }
 });
 
-productosRouter.post('/productos', requerirAuth, requerirRol('admin', 'superAdmin'), async (req, res, next) => {
+productosRouter.post('/productos', requerirAutenticacion, requerirRol('admin', 'superAdmin'), async (req, res, next) => {
   try {
     res.status(201).json(await crearProducto(req.body));
   } catch (e) {
@@ -21,7 +21,7 @@ productosRouter.post('/productos', requerirAuth, requerirRol('admin', 'superAdmi
   }
 });
 
-productosRouter.put('/productos/:id', requerirAuth, requerirRol('admin', 'superAdmin'), async (req, res, next) => {
+productosRouter.put('/productos/:id', requerirAutenticacion, requerirRol('admin', 'superAdmin'), async (req, res, next) => {
   try {
     await actualizarProducto(req.params.id, req.body);
     res.sendStatus(204);
@@ -30,7 +30,7 @@ productosRouter.put('/productos/:id', requerirAuth, requerirRol('admin', 'superA
   }
 });
 
-productosRouter.delete('/productos/:id', requerirAuth, requerirRol('admin', 'superAdmin'), async (req, res, next) => {
+productosRouter.delete('/productos/:id', requerirAutenticacion, requerirRol('admin', 'superAdmin'), async (req, res, next) => {
   try {
     await eliminarProducto(req.params.id);
     res.sendStatus(204);

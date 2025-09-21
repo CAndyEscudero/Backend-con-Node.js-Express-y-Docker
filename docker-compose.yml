@@ -7,10 +7,10 @@ services:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: UTNExamen
     ports:
-      - "3309:3306"             # host 3309 -> container 3306
+      - "3309:3306"                # MySQL accesible en localhost:3309
     volumes:
       - db_data:/var/lib/mysql
-      - ./sql:/docker-entrypoint-initdb.d  # opcional: seed/init
+      - ./sql:/docker-entrypoint-initdb.d  # scripts .sql se ejecutan al iniciar
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 5s
@@ -20,20 +20,21 @@ services:
   api:
     build: .
     container_name: utnexamen-api
-    depends_on:
-      db:
-        condition: service_healthy
     environment:
       NODE_ENV: development
+      # OJO: dentro del container la API habla al servicio 'db' por 3306
       DB_HOST: db
       DB_PORT: 3306
       DB_USER: root
       DB_PASS: root
       DB_NAME: UTNExamen
-      JWT_SECRET: holasalame
+      JWT_SECRET: Pa$$word00
       JWT_EXPIRES_IN: 1d
       BCRYPT_ROUNDS: "10"
       PORT: 3000
+    depends_on:
+      db:
+        condition: service_healthy
     ports:
       - "3000:3000"
     volumes:

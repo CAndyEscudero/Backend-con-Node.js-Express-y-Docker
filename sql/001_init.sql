@@ -1,0 +1,36 @@
+CREATE DATABASE IF NOT EXISTS UTNExamen;
+USE UTNExamen;
+
+CREATE TABLE IF NOT EXISTS usuario (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nombre VARCHAR(120) NOT NULL,
+  email VARCHAR(120) NOT NULL UNIQUE,
+  contrasena_hash VARCHAR(255) NOT NULL,
+  rol ENUM('superAdmin','admin','usuario') NOT NULL DEFAULT 'usuario',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS productos (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nombre VARCHAR(120) NOT NULL,
+  precio DECIMAL(10,2) NOT NULL,
+  stock INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS pedidos (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  usuario_id INT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (usuario_id) REFERENCES usuario(id)
+);
+
+CREATE TABLE IF NOT EXISTS pedidos_items (
+  pedidos_id INT NOT NULL,
+  productos_id INT NOT NULL,
+  qty INT NOT NULL,
+  precio DECIMAL(10,2) NOT NULL,
+  PRIMARY KEY (pedidos_id, productos_id),
+  FOREIGN KEY (pedidos_id) REFERENCES pedidos(id),
+  FOREIGN KEY (productos_id) REFERENCES productos(id)
+);

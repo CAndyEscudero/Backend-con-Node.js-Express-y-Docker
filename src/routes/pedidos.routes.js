@@ -1,11 +1,11 @@
 import { Router } from 'express';
-import { requerirAuth } from '../middlewares/auth.js';
+import { requerirAutenticacion } from '../middlewares/auth.js';
 import { requerirRol } from '../middlewares/roles.js';
-import { crearPedido, obtenerPedidoConDetalles, listarPedidosConTotales } from '../models/pedido.model.js';
+import { crearPedido, obtenerPedidoCompleto, listarPedidosConTotales } from '../models/pedidos.models.js';
 
 const pedidosRouter = Router();
 
-pedidosRouter.post('/pedidos', requerirAuth, requerirRol('usuario', 'admin', 'superAdmin'), async (req, res, next) => {
+pedidosRouter.post('/pedidos', requerirAutenticacion, requerirRol('usuario', 'admin', 'superAdmin'), async (req, res, next) => {
   try {
     res.status(201).json(await crearPedido(req.user.id, req.body.items || []));
   } catch (e) {
@@ -13,17 +13,17 @@ pedidosRouter.post('/pedidos', requerirAuth, requerirRol('usuario', 'admin', 'su
   }
 });
 
-pedidosRouter.get('/pedidos', requerirAuth, requerirRol('admin', 'superAdmin'), async (_req, res, next) => {
+pedidosRouter.get('/pedidos', requerirAutenticacion, requerirRol('admin', 'superAdmin'), async (_req, res, next) => {
   try {
-    res.json(await listarPedidosConTotales());
+    res.json(await obtenerPedidoCompleto());
   } catch (e) {
     next(e);
   }
 });
 
-pedidosRouter.get('/pedidos/:id', requerirAuth, async (req, res, next) => {
+pedidosRouter.get('/pedidos/:id', requerirAutenticacion, async (req, res, next) => {
   try {
-    res.json(await obtenerPedidoConDetalles(req.params.id));
+    res.json(await listarPedidosConTotales(req.params.id));
   } catch (e) {
     next(e);
   }

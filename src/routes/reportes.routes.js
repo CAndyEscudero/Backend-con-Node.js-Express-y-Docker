@@ -1,11 +1,11 @@
 import { Router } from 'express';
-import { requerirAuth } from '../middlewares/auth.js';
+import { requerirAutenticacion} from '../middlewares/auth.js';
 import { requerirRol } from '../middlewares/roles.js';
 import { pool } from '../config/db.js';
 
 const reportesRouter = Router();
 
-reportesRouter.get('/reportes/pedidos-por-usuario/:usuarioId', requerirAuth, requerirRol('admin', 'superAdmin'), async (req, res, next) => {
+reportesRouter.get('/reportes/pedidos-por-usuario/:usuarioId', requerirAutenticacion, requerirRol('admin', 'superAdmin'), async (req, res, next) => {
   try {
     const [rows] = await pool.execute(`
       SELECT 
