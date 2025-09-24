@@ -12,12 +12,19 @@ Docker & Docker Compose
 
 
 /config        -> configuración de conexión a la base de datos
+
 /controllers   -> lógica de negocio
+
 /interfaces    -> definición de tipos y contratos
+
 /middlewares   -> guards, autenticación y validación de roles
+
 /models        -> definición de clases y entidades
+
 /routes        -> definición de endpoints REST
+
 /services      -> conexión entre controllers y repositorios
+
 /sql           -> script de inicialización de la base de datos
 
 🐳 Levantar el proyecto con Docker
