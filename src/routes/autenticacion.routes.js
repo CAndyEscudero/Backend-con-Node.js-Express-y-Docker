@@ -5,6 +5,10 @@ const autenticacionRouter = Router();
 
 autenticacionRouter.post('/register', registrarUsuario);
 autenticacionRouter.post('/login', iniciarSesionUsuario);
-autenticacionRouter.get('/profile', requerirAutenticacion);
+autenticacionRouter.get('/profile', requerirAutenticacion, (req, res) => {
+  res.json({
+    usuario: req.usuario  
+  });
+});
 
 export default autenticacionRouter;
